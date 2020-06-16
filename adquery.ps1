@@ -1,4 +1,4 @@
-function Get-LogonWorkstation {
+function Get-LogonWorkstations {
     [cmdletbinding()]
     param(
         [parameter(Mandatory)]
@@ -13,24 +13,33 @@ function Get-LogonWorkstation {
         Throw ('Unable to locate user {0}' -f $UserName)
     }
 
-    $Account -split ',' | ForEach-Object {
-    $Computer = Get-ADComputer -Identity $_ -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Enabled
-        if($computer -eq $True) {
-        New-Object -TypeName PSCustomObject -Property @{
-            MachineName = $_;
-           'In Active Directory' = 'True';
+    $output = $Account -split ',' | ForEach-Object {
+        $computer = $_
+        try {
+            $adcomp = Get-ADComputer -Identity $_ -ErrorAction Stop | Select-Object -ExpandProperty Enabled
+            if($adcomp -eq $true) { 
+                [PSCustomObject]@{
+                    MachineName = $computer
+                    InAD        = $true
+                }
+            }
+            else {
+                [PSCustomObject]@{
+                    MachineName = $computer
+                    InAD        = $false
+            }
         }
     }
 
-        else {
-            New-Object -TypeName PSCustomObject -Property @{
-            MachineName = $_;
-           'In Active Directory' = 'False';
-           }
+        catch {
+            [PSCustomObject]@{
+                MachineName = $computer
+                InAD        = $false
+            }
         }
-    } |Export-Csv -path C:\Powershell\data.csv
+    }
 
+    $output | export-csv -path C:\Powershell\data.csv
 }
   
-
         
