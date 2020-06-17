@@ -22,12 +22,14 @@ function Get-LogonWorkstations {
                     MachineName = $computer
                     InAD        = $true
                 }
+            Write-Verbose ('{0} is enabled' -f $computer)
             }
             else {
                 [PSCustomObject]@{
                     MachineName = $computer
                     InAD        = $false
             }
+            Write-Verbose ('{0} is disabled' -f $computer)
         }
     }
 
@@ -36,6 +38,7 @@ function Get-LogonWorkstations {
                 MachineName = $computer
                 InAD        = $false
             }
+            Write-Verbose ('Unable to locate machine {0}' -f $computer)
         }
     }
 
